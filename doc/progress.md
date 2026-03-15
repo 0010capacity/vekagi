@@ -7,11 +7,25 @@
 
 ## 현재 상태
 
-**진행 단계:** Phase 1 완료
+**진행 단계:** Phase 2 완료
 
 ---
 
 ## 완료 기록
+
+### Phase 2 완료 (2026-03-15)
+
+완료 파일:
+- src/engine/moveEngine.ts ✓
+- src/engine/turnEngine.ts ✓
+- src/engine/countdownEngine.ts ✓
+- src/engine/formationEngine.ts ✓
+- src/engine/mapGenerator.ts ✓
+- tests/engine/turnEngine.test.ts ✓ (11개 추가, 총 17개 통과)
+
+다음 단계: `doc/phase_03_ai.md`
+
+---
 
 ### Phase 1 완료 (2026-03-15)
 
