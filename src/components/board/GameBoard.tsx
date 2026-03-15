@@ -79,7 +79,7 @@ export function GameBoard() {
   }
 
   // 예약된 이동 경로 계산
-  const movePaths = pendingMoves.map(pm => {
+  const movePaths: Array<{ from: Position; to: Position }> = pendingMoves.map(pm => {
     // 현재 기물 위치 찾기 (이동 전)
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
@@ -90,10 +90,10 @@ export function GameBoard() {
       }
     }
     return null
-  }).filter((p): p !== null)
+  }).filter((p): p is { from: Position; to: Position } | null => p !== null)
 
   // 셀 중심 좌표 계산
-  const getCellCenter = (pos: Position) => {
+  const getCellCenter = (pos: Position): { x: number; y: number } => {
     if (!metrics) return { x: 0, y: 0 }
     const { cellSize, gap, padding } = metrics
     return {
@@ -116,12 +116,12 @@ export function GameBoard() {
             return (
               <div key={`${r}-${c}`} data-cell>
                 <Cell
-                  position={{ row: r, col: c }}
                   tileType={tile}
                   piece={piece ?? undefined}
                   isHighlighted={isHighlighted}
                   pushPreview={pushPreview}
-                  isSelected={isSelected || hasPendingMove}
+                  isSelected={isSelected}
+                  hasPendingMove={hasPendingMove}
                   onClick={() => handleCellClick({ row: r, col: c })}
                 />
               </div>
