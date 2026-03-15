@@ -11,30 +11,33 @@ export function getValidMoves(piece: PieceToken, board: BoardState, moveType: Mo
   const moves: Position[] = []
 
   const inBounds = (r: number, c: number) => r >= 0 && r < size && c >= 0 && c < size
+  // isEmpty 대신 canMoveTo: 충돌 가능하므로 기물이 있어도 이동 가능
+  const canMoveTo = (r: number, c: number) => inBounds(r, c)
+  // 장거리 이동의 경우 빈 칸만 통과 가능 (충돌은 도착지에서만)
   const isEmpty = (r: number, c: number) => inBounds(r, c) && board.pieces[r][c] === null
 
   switch (moveType) {
     case '주(主)': {
-      // 상하좌우 1칸
+      // 상하좌우 1칸 - 충돌 가능
       const dirs = [[-1,0],[1,0],[0,-1],[0,1]]
       dirs.forEach(([dr, dc]) => {
-        if (isEmpty(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
+        if (canMoveTo(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
       })
       break
     }
     case '사(斜)': {
-      // 대각선 1칸
+      // 대각선 1칸 - 충돌 가능
       const dirs = [[-1,-1],[-1,1],[1,-1],[1,1]]
       dirs.forEach(([dr, dc]) => {
-        if (isEmpty(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
+        if (canMoveTo(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
       })
       break
     }
     case '전(全)': {
-      // 8방향 1칸
+      // 8방향 1칸 - 충돌 가능
       const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]
       dirs.forEach(([dr, dc]) => {
-        if (isEmpty(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
+        if (canMoveTo(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
       })
       break
     }
@@ -65,21 +68,21 @@ export function getValidMoves(piece: PieceToken, board: BoardState, moveType: Mo
       break
     }
     case '도약(♞)': {
-      // L자 (체스 나이트). 기물 뛰어넘기 가능
+      // L자 (체스 나이트). 기물 뛰어넘기 가능, 충돌 가능
       const jumps = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
       jumps.forEach(([dr, dc]) => {
-        if (isEmpty(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
+        if (canMoveTo(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
       })
       break
     }
     case '전진(↑)': {
-      // 전방(위) 1칸만
-      if (isEmpty(row-1, col)) moves.push({ row: row-1, col })
+      // 전방(위) 1칸만 - 충돌 가능
+      if (canMoveTo(row-1, col)) moves.push({ row: row-1, col })
       break
     }
     case '역주(↓)': {
-      // 후방(아래) 1칸만
-      if (isEmpty(row+1, col)) moves.push({ row: row+1, col })
+      // 후방(아래) 1칸만 - 충돌 가능
+      if (canMoveTo(row+1, col)) moves.push({ row: row+1, col })
       break
     }
     case '돌진(⇒)': {
@@ -100,10 +103,10 @@ export function getValidMoves(piece: PieceToken, board: BoardState, moveType: Mo
       break
     }
     case '랜덤(?)': {
-      // 매 턴 랜덤 방향 1칸 (전(全)과 동일하게 반환, 실제 이동은 랜덤 선택)
+      // 매 턴 랜덤 방향 1칸 (전(全)과 동일하게 반환, 충돌 가능)
       const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]
       dirs.forEach(([dr, dc]) => {
-        if (isEmpty(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
+        if (canMoveTo(row+dr, col+dc)) moves.push({ row: row+dr, col: col+dc })
       })
       break
     }

@@ -7,13 +7,16 @@ import type {
 } from '@/types/game'
 import { calculatePushDistance, calculateChainForce } from '@/engine/collision'
 import { getValidMoves } from '@/engine/moveEngine'
+import { PIECES } from '@/data/pieces'
 
 // Worker entry point
 self.onmessage = (e: MessageEvent<AIWorkerMessage>) => {
   const { type, gameState, aiPieces, archetype, difficulty } = e.data
+  console.log('[AI Worker] 메시지 수신:', type, 'aiPieces:', aiPieces.length)
 
   if (type === 'compute_turn') {
     const actions = computeRuleBasedTurn(gameState, aiPieces, archetype, difficulty)
+    console.log('[AI Worker] 계산된 행동:', actions.length)
     const intentArrows = generateIntentArrows(actions, aiPieces)
     const response: AIWorkerResponse = { type: 'turn_computed', actions, intentArrows }
     self.postMessage(response)
@@ -31,17 +34,25 @@ function computeRuleBasedTurn(
   const playerPieces = gameState.playerPieces.filter(p => !p.isDead)
   const actions: AIAction[] = []
 
-  // 간단한 pieceDef 캐시 (PIECES import 없이)
-  const moveCache = new Map<number, string>()
+  console.log('[AI Worker] computeRuleBasedTurn 시작', {
+    aiPiecesAlive: aiPieces.filter(p => !p.isDead).length,
+    playerPiecesAlive: playerPieces.length
+  })
 
   for (const aiPiece of aiPieces.filter(p => !p.isDead && !p.isSealed)) {
-    // moveType은 외부에서 전달받아야 하지만, 간단히 기본 이동 사용
-    const moveType = moveCache.get(aiPiece.definitionId) || '전(全)'
-    const validMoves = getValidMoves(aiPiece, gameState.board, moveType as any)
+    // PIECES에서 기물 정의를 찾아서 move 타입 가져오기
+    const pieceDef = PIECES.find(p => p.id === aiPiece.definitionId)
+    if (!pieceDef) {
+      console.log('[AI Worker] 기물 정의 없음:', aiPiece.definitionId)
+      continue
+    }
+
+    const validMoves = getValidMoves(aiPiece, gameState.board, pieceDef.move)
+    console.log('[AI Worker] 기물', aiPiece.instanceId, '이동타입:', pieceDef.move, '유효 이동:', validMoves.length)
     if (validMoves.length === 0) continue
 
     // 랜덤(?) 이동은 유효 칸에서 랜덤 선택
-    if (moveType === '랜덤(?)') {
+    if (pieceDef.move === '랜덤(?)') {
       const picked = validMoves[Math.floor(Math.random() * validMoves.length)]
       actions.push({ pieceId: aiPiece.instanceId, targetPosition: picked, priority: 1 })
       continue
