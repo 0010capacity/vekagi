@@ -23,7 +23,14 @@ const TILE_STYLES: Record<TileType, string> = {
   ice: 'bg-cyan-900/60',
 }
 
-export function Cell({ tileType, piece, isHighlighted, pushPreview, isSelected, onClick }: CellProps) {
+export function Cell({
+  tileType,
+  piece,
+  isHighlighted,
+  pushPreview,
+  isSelected,
+  onClick
+}: CellProps) {
   const hasEnemy = piece?.owner === 'enemy' && !piece.isDead
 
   return (
@@ -39,16 +46,19 @@ export function Cell({ tileType, piece, isHighlighted, pushPreview, isSelected, 
       onClick={onClick}
     >
       {piece && <PieceTokenComponent piece={piece} isSelected={isSelected} />}
+
       {/* 이동 가능 표시 (빈 칸) */}
-      {isHighlighted && !piece && (
+      {isHighlighted && !piece && !hasEnemy && (
         <div className="w-4 h-4 rounded-full bg-blue-400/60" />
       )}
+
       {/* 충돌 예정 표시 (적 기물 있는 칸) */}
       {isHighlighted && hasEnemy && !piece?.isDead && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <span className="text-red-400 text-2xl font-bold animate-pulse">⚔</span>
         </div>
       )}
+
       {/* 타일 아이콘 */}
       {!piece && tileType !== 'normal' && !isHighlighted && (
         <span className="text-sm opacity-50">
