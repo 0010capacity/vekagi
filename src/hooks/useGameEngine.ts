@@ -103,11 +103,11 @@ export function useGameEngine() {
         .map(o => allMoves.filter(m => m.pieceId === o.piece.instanceId))
         .flat()
 
-      // 이동 처리 (실제 구현은 애니메이션과 연동)
-      let updatedPieces = [...game.playerPieces, ...game.enemyPieces]
+      // 순차적 이동 처리 (애니메이션 포함)
+      let currentPieces = [...game.playerPieces, ...game.enemyPieces]
 
       for (const move of orderedMoves) {
-        const piece = updatedPieces.find(p => p.instanceId === move.pieceId)
+        const piece = currentPieces.find(p => p.instanceId === move.pieceId)
         if (!piece || piece.isDead) continue
 
         const def = PIECES.find(p => p.id === piece.definitionId)
@@ -115,10 +115,10 @@ export function useGameEngine() {
 
         // 충돌 처리
         const hasPenetrating = piece.activeTraits.includes('관통')
-        const events = resolvePieceMove(piece, move.targetPos, updatedPieces, game.board.size, hasPenetrating)
+        const events = resolvePieceMove(piece, move.targetPos, currentPieces, game.board.size, hasPenetrating)
 
         // 이동 적용
-        updatedPieces = updatedPieces.map(p => {
+        currentPieces = currentPieces.map(p => {
           if (p.instanceId === move.pieceId) {
             return { ...p, position: move.targetPos }
           }
@@ -130,11 +130,13 @@ export function useGameEngine() {
           game.addLogEntry('collision', `${event.attackerId} -> ${event.targetId}: ${event.pushDistance}칸`)
 
           if (event.targetDied) {
-            game.killPiece(event.targetId)
+            currentPieces = currentPieces.map(p =>
+              p.instanceId === event.targetId ? { ...p, isDead: true } : p
+            )
             game.addLogEntry('death', `${event.targetId} 격출됨`)
 
             // 플레이어 기물 사망 시 지휘관 HP 감소 (특성 기반)
-            const targetPiece = updatedPieces.find(p => p.instanceId === event.targetId)
+            const targetPiece = currentPieces.find(p => p.instanceId === event.targetId)
             if (targetPiece?.owner === 'player') {
               const targetDef = PIECES.find(p => p.id === targetPiece.definitionId)
               let hpDamage = 1 // 기본 데미지
@@ -154,11 +156,11 @@ export function useGameEngine() {
             }
           } else {
             // 밀려난 위치로 업데이트
-            const pushTarget = updatedPieces.find(p => p.instanceId === event.targetId)
+            const pushTarget = currentPieces.find(p => p.instanceId === event.targetId)
             if (pushTarget) {
               const newRow = pushTarget.position.row + event.direction.dr * event.pushDistance
               const newCol = pushTarget.position.col + event.direction.dc * event.pushDistance
-              updatedPieces = updatedPieces.map(p =>
+              currentPieces = currentPieces.map(p =>
                 p.instanceId === event.targetId
                   ? { ...p, position: { row: newRow, col: newCol } }
                   : p
@@ -172,18 +174,15 @@ export function useGameEngine() {
           }
         }
 
-        // 애니메이션 큐에 추가
-        ui.queueAnimation({
-          type: 'move',
-          pieceId: move.pieceId,
-          from: piece.position,
-          to: move.targetPos,
-          delay: 200,
-        })
+        // 즉시 UI 업데이트 (Framer Motion이 애니메이션 처리)
+        game.applyTurnResult(currentPieces)
+
+        // 다음 이동 전 대기 (애니메이션 시간)
+        await new Promise(resolve => setTimeout(resolve, 350))
       }
 
       // 카운트다운 처리
-      const { updatedPieces: countdownPieces, events: countdownEvents } = tickCountdowns(updatedPieces)
+      const { updatedPieces: countdownPieces, events: countdownEvents } = tickCountdowns(currentPieces)
       countdownEvents.forEach(e => {
         game.addLogEntry('countdown', `${e.pieceId}: ${e.description}`)
       })
@@ -191,7 +190,7 @@ export function useGameEngine() {
       // 봉인 상태 처리
       const finalPieces = tickSealedStatus(countdownPieces)
 
-      // 상태 적용
+      // 최종 상태 적용
       game.applyTurnResult(finalPieces)
       run.addTurns(1)
 
