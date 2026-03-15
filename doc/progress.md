@@ -7,16 +7,39 @@
 
 ## 현재 상태
 
-**진행 단계:** Phase 1 시작 전
+**진행 단계:** Phase 1 완료
 
 ---
 
 ## 완료 기록
 
-(각 단계 완료 시 여기에 추가)
+### Phase 1 완료 (2026-03-15)
+
+완료 파일:
+- vite.config.ts ✓
+- tsconfig.json ✓
+- tsconfig.node.json ✓
+- index.html ✓
+- src/index.css ✓
+- src/main.tsx ✓
+- src/App.tsx (임시) ✓
+- src/types/game.ts ✓
+- src/data/pieces.ts ✓
+- src/data/formations.ts ✓
+- src/data/bosses.ts ✓
+- src/data/events.ts ✓
+- src/data/shop.ts ✓
+- src/data/index.ts ✓
+- src/engine/collision.ts ✓
+- tests/engine/collision.test.ts ✓ (전체 6개 통과)
+
+빌드: 성공
+테마: 추상적/미니멀 (monospace 폰트, 어두운 배경)
+
+다음 단계: `doc/phase_02_engine.md`
 
 ---
 
 ## 알려진 이슈 / 메모
 
-(이슈나 주의사항 발생 시 여기에 기록)
+- 없음
