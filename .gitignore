@@ -1,0 +1,23 @@
+node_modules/
+dist/
+dist-node/
+.vite/
+*.local
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+playwright-report/
+test-results/

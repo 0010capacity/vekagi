@@ -1,0 +1,198 @@
+// src/data/bosses.ts
+// VANGUARD PUSH — 보스 데이터 (4종)
+// 이 파일은 완성본입니다.
+
+export interface BossCompanion {
+  name: string;
+  count: number;
+  desc: string;
+}
+
+export interface BossPhase {
+  phase: number;
+  trigger: string;
+  desc: string;
+}
+
+export interface BossDefinition {
+  id: number;
+  zone: string;
+  boardSize: string;
+  name: string;
+  title: string;
+  archetypes: string[];
+  stats: { force: number; mass: number; agility: number; ap: number };
+  move: string;
+  companions: BossCompanion[];
+  phases: BossPhase[];
+  counterStrategy: string;
+  rewards: string[];
+}
+
+export const BOSSES: BossDefinition[] = [
+  {
+    id: 1, zone: '1구역 보스', boardSize: '6×6',
+    name: '군단의 어머니', title: '끝없는 소환자',
+    archetypes: ["소환형", "압박형"],
+    stats: { force: 3, mass: 4, agility: 2, ap: 4 },
+    move: '고정(■)',
+    companions: [
+    {
+        "name": "알 수호자",
+        "count": 2,
+        "desc": "힘2 질량3 고정대"
+    },
+    {
+        "name": "유충병",
+        "count": 3,
+        "desc": "힘1 질량1 각성(2)"
+    },
+    {
+        "name": "번식체",
+        "count": 1,
+        "desc": "소환형 핵심"
+    }
+],
+    phases: [
+    {
+        "phase": 1,
+        "trigger": "시작",
+        "desc": "매 2턴 유충병 1기물 소환. 번식체가 보드 중앙에 고정. 알 수호자 2기가 번식체를 인접 보호. 알 수호자가 있는 한 번식체는 고정대."
+    },
+    {
+        "phase": 2,
+        "trigger": "남은 기물 4개 이하",
+        "desc": "유충이 즉시 각성해 번식체로 변화. 소환 주기 2턴→1턴으로 단축. 보드 중앙 2×2 타일이 가시 타일로 변환."
+    },
+    {
+        "phase": 3,
+        "trigger": "남은 기물 2개 이하",
+        "desc": "번식체 스스로 이동 시작(주 이동). 모든 신규 소환 기물이 양날의검 특성 획득. 번식체 힘 +3."
+    }
+],
+    counterStrategy: '번식체를 먼저 제거하면 소환이 멈추지만 알 수호자가 고정대를 제공하는 한 근접 불가. 수호자를 먼저 밀어낼 것.',
+    rewards: ["희귀 기물 픽 3종", "진형 카드 1장", "지휘관 HP +3"],
+  },
+  {
+    id: 2, zone: '2구역 보스', boardSize: '7×7',
+    name: '강철 포위자', title: '완벽한 포위 전략가',
+    archetypes: ["압박형", "공격형"],
+    stats: { force: 4, mass: 3, agility: 4, ap: 5 },
+    move: '십자(十)',
+    companions: [
+    {
+        "name": "강철 기병",
+        "count": 4,
+        "desc": "힘3 질량2 관통"
+    },
+    {
+        "name": "포위 방패",
+        "count": 2,
+        "desc": "힘1 질량5 고정대"
+    }
+],
+    phases: [
+    {
+        "phase": 1,
+        "trigger": "시작",
+        "desc": "포위 방패 2기가 보드 좌우 중앙 고정. 강철 기병이 플레이어 기물을 보드 가장자리로 유도. 본체는 십자 이동으로 직선 압박."
+    },
+    {
+        "phase": 2,
+        "trigger": "남은 기물 4개 이하",
+        "desc": "보드 외곽 1칸 타일 전체가 위험 타일(가시)로 변환. 강철 기병 힘 +1. 본체 이동력 2칸으로 증가."
+    },
+    {
+        "phase": 3,
+        "trigger": "남은 기물 2개 이하",
+        "desc": "포위 방패 고정대 해제, 이동 시작. 매 턴 보드 가장자리 1칸씩 추가 위험 타일 확산. 본체 민첩 +4."
+    }
+],
+    counterStrategy: '가장자리가 점점 위험해지므로 중앙을 사수해야 한다. 포위 방패를 먼저 제거해 본체를 고립시킬 것. 관통 기물로 여러 기물을 한 번에 밀어내는 것이 핵심.',
+    rewards: ["희귀 이상 기물 픽 3종", "희귀 진형 카드 1장", "지휘관 HP +4"],
+  },
+  {
+    id: 3, zone: '3구역 보스', boardSize: '8×8',
+    name: '심판의 추', title: '균형의 파괴자',
+    archetypes: ["공격형", "카운트다운형"],
+    stats: { force: 5, mass: 3, agility: 3, ap: 5 },
+    move: '전(全)',
+    companions: [
+    {
+        "name": "추의 파편",
+        "count": 4,
+        "desc": "힘3 질량2 각성(3)"
+    },
+    {
+        "name": "심판 수호자",
+        "count": 2,
+        "desc": "힘2 질량4 반탄"
+    }
+],
+    phases: [
+    {
+        "phase": 1,
+        "trigger": "시작",
+        "desc": "추의 파편 카운트다운 3턴. 각성 시 힘 +3, 이동 돌진으로 변화. 심판 수호자가 본체 좌우 보호. 반탄으로 플레이어 기물 역습."
+    },
+    {
+        "phase": 2,
+        "trigger": "남은 기물 4개 이하",
+        "desc": "본체 각성 카운트다운 5→3으로 단축. 각성 후 본체 힘 8, 전 방향 관통 발동. 매 3턴 보드 랜덤 위치에 구멍 타일 생성."
+    },
+    {
+        "phase": 3,
+        "trigger": "남은 기물 2개 이하",
+        "desc": "본체 즉시 각성. 매 턴 자신의 힘만큼 인접 모든 기물 밀어내기. 구멍 타일 생성 속도 2배. 수호자 부활(1회)."
+    }
+],
+    counterStrategy: '본체 각성 전에 최대한 기물을 줄여야 한다. 반탄 수호자를 먼저 처리하지 않으면 공격이 역으로 돌아온다. 봉인사 기물이 있다면 카운트다운 방해에 탁월.',
+    rewards: ["전설 기물 픽 2종", "전설 진형 카드 1장", "지휘관 HP +5"],
+  },
+  {
+    id: 4, zone: '최종 보스', boardSize: '8×8 특수',
+    name: '공허의 왕', title: '이 게임의 모든 규칙을 아는 자',
+    archetypes: ["공격형", "소환형", "카운트다운형", "압박형"],
+    stats: { force: 6, mass: 4, agility: 5, ap: 6 },
+    move: '전(全)+돌진(⇒) 교번',
+    companions: [
+    {
+        "name": "공허 파편",
+        "count": 3,
+        "desc": "힘4 질량2 관통 각성(2)"
+    },
+    {
+        "name": "공허 방패",
+        "count": 2,
+        "desc": "힘1 질량6 고정대 반탄"
+    },
+    {
+        "name": "공허 소환사",
+        "count": 1,
+        "desc": "매 2턴 플레이어 기물 복제 소환"
+    }
+],
+    phases: [
+    {
+        "phase": 1,
+        "trigger": "시작",
+        "desc": "보드 외곽 전체가 처음부터 위험 타일. 공허 소환사가 매 2턴 플레이어 기물 목록에서 랜덤 기물을 복제 소환. 공허 방패가 본체 보호. 본체는 전 방향 이동 후 돌진 교번."
+    },
+    {
+        "phase": 2,
+        "trigger": "남은 기물 5개 이하",
+        "desc": "소환 주기 2턴→1턴. 소환된 복제 기물이 양날의검+각성(2) 부여. 본체 힘 +2, 매 턴 인접 기물 전부 1칸씩 밀어냄. 구멍 타일 4개 랜덤 생성."
+    },
+    {
+        "phase": 3,
+        "trigger": "남은 기물 3개 이하",
+        "desc": "공허 방패 부활. 본체 모든 특성 획득(관통·반탄·고정대·가시). 보드 중앙 2×2 구역이 매 턴 위험 타일 변환. AP 6→8로 증가. 소환사 무적."
+    }
+],
+    counterStrategy: '소환사를 먼저 처리하지 않으면 플레이어 기물의 복제판과 싸우는 상황이 된다. 공허 방패는 2페이즈까지 관통 기물로만 처리 가능. 3페이즈 본체는 모든 특성 보유하므로 연쇄 유도나 위험 타일 포지셔닝으로 접근.',
+    rewards: ["런 클리어", "업적 해금", "다음 런 특수 시작 조건 해금"],
+  },
+];
+
+export const getBossByZone = (zone: number): BossDefinition | undefined =>
+  BOSSES.find(b => b.id === zone);
