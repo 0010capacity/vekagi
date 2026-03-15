@@ -54,11 +54,20 @@ export function useGameEngine() {
     ui.setIsAnimating(true)
 
     try {
-      // AI 행동 계산
+      // AI 행동 계산 - Worker에 보낼 데이터는 순수 객체여야 함
       console.log('[handleEndTurn] AI 계산 중...')
+      const gameStateForWorker = {
+        board: {
+          size: game.board.size,
+          tiles: game.board.tiles,
+          pieces: game.board.pieces,
+        },
+        playerPieces: game.playerPieces,
+        enemyPieces: game.enemyPieces,
+      }
       const aiResponse = await computeAITurn({
         type: 'compute_turn',
-        gameState: { ...game },
+        gameState: gameStateForWorker,
         aiPieces: game.enemyPieces,
         archetype: 'aggressive',
         difficulty: game.isBossBattle ? 3 : 2,
