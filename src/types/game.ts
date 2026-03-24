@@ -57,6 +57,7 @@ export interface PieceToken {
   statusEffects: StatusEffect[];
   isSealed: boolean;
   isDead: boolean;
+  isDying?: boolean;
 }
 
 export interface StatusEffect {
@@ -136,8 +137,7 @@ export interface Currencies {
 
 export interface PendingMove {
   pieceId: string;
-  from: Position;
-  to: Position;
+  direction: { dr: number; dc: number };
   apCost: number;
 }
 

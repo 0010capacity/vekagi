@@ -1,6 +1,3 @@
-// src/components/board/PieceToken.tsx
-// 기물 토큰 컴포넌트 (Framer Motion 애니메이션)
-
 import { motion } from 'framer-motion'
 import type { PieceToken } from '@/types/game'
 import { PIECES } from '@/data/pieces'
@@ -26,7 +23,11 @@ export function PieceTokenComponent({ piece, isSelected }: Props) {
         piece.isSealed && 'opacity-50',
         piece.isDead && 'opacity-30 grayscale',
       )}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      animate={piece.isDying ? { opacity: 0, scale: 1.4 } : { opacity: piece.isDead ? 0.3 : 1, scale: isSelected ? 1.05 : 1 }}
+      transition={piece.isDying
+        ? { duration: 0.3, ease: 'easeOut' }
+        : { type: 'spring', stiffness: 400, damping: 30 }
+      }
     >
       <span className="text-xs font-bold leading-none">
         {def?.name.slice(0, 2) ?? '??'}
@@ -34,13 +35,11 @@ export function PieceTokenComponent({ piece, isSelected }: Props) {
       <span className="text-[10px] opacity-70">
         {piece.currentForce}/{piece.currentMass}
       </span>
-      {/* 카운트다운 타이머 */}
       {piece.countdown && piece.countdown.currentTurns > 0 && (
         <span className="absolute -top-1 -right-1 bg-[#854F0B] text-white rounded-full w-5 h-5 text-[10px] flex items-center justify-center font-bold">
           {piece.countdown.currentTurns}
         </span>
       )}
-      {/* 봉인 표시 */}
       {piece.isSealed && (
         <span className="absolute inset-0 flex items-center justify-center text-xl opacity-60">
           ✕

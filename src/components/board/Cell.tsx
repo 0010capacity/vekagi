@@ -9,7 +9,6 @@ interface CellProps {
   tileType: TileType
   piece?: PieceToken
   isHighlighted: boolean
-  pushPreview?: number
   isSelected: boolean
   hasPendingMove: boolean
   onClick: () => void
@@ -27,7 +26,6 @@ export function Cell({
   tileType,
   piece,
   isHighlighted,
-  pushPreview,
   isSelected,
   hasPendingMove,
   onClick
@@ -44,6 +42,7 @@ export function Cell({
         (isSelected || hasPendingMove) && 'border-yellow-400',
         !isHighlighted && !isSelected && !hasPendingMove && 'border-slate-700/50',
       )}
+      style={{ zIndex: 10 }}
       onClick={onClick}
     >
       {piece && <PieceTokenComponent piece={piece} isSelected={isSelected} />}

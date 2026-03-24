@@ -11,10 +11,8 @@ export function getValidMoves(piece: PieceToken, board: BoardState, moveType: Mo
   const moves: Position[] = []
 
   const inBounds = (r: number, c: number) => r >= 0 && r < size && c >= 0 && c < size
-  // isEmpty 대신 canMoveTo: 충돌 가능하므로 기물이 있어도 이동 가능
+  // 충돌 가능하므로 기물이 있어도 이동 가능
   const canMoveTo = (r: number, c: number) => inBounds(r, c)
-  // 장거리 이동의 경우 빈 칸만 통과 가능 (충돌은 도착지에서만)
-  const isEmpty = (r: number, c: number) => inBounds(r, c) && board.pieces[r][c] === null
 
   switch (moveType) {
     case '주(主)': {

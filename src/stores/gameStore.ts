@@ -58,11 +58,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (state.currentAP < apCost) return false
 
+    const dr = to.row - piece.position.row
+    const dc = to.col - piece.position.col
+
     set(s => ({
       currentAP: s.currentAP - apCost,
       pendingMoves: [
         ...s.pendingMoves.filter(m => m.pieceId !== pieceId),
-        { pieceId, from: piece.position, to, apCost },
+        { pieceId, direction: { dr, dc }, apCost },
       ],
     }))
     return true
@@ -86,14 +89,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newPieces: (PieceToken | null)[][] = Array(size).fill(null).map(() =>
       Array(size).fill(null)
     )
-    updatedPieces.filter(p => !p.isDead).forEach(p => {
-      newPieces[p.position.row][p.position.col] = p
+    updatedPieces.filter(p => !p.isDead || p.isDying).forEach(p => {
+      if (p.position.row >= 0 && p.position.row < size && p.position.col >= 0 && p.position.col < size) {
+        newPieces[p.position.row][p.position.col] = p
+      }
     })
     set(s => ({
       playerPieces: players,
       enemyPieces: enemies,
       board: { ...s.board, pieces: newPieces },
-      phase: 'countdown',
+      phase: 'plan',
       pendingMoves: [],
       currentAP: 6,
       turnNumber: s.turnNumber + 1,

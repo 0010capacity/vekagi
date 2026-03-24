@@ -6,7 +6,7 @@ import { useGameStore } from '@/stores/gameStore'
 import { useUIStore } from '@/stores/uiStore'
 import { useGameEngine } from '@/hooks/useGameEngine'
 import { Cell } from './Cell'
-import type { Position, MoveReservation } from '@/types/game'
+import type { Position } from '@/types/game'
 
 interface CellMetrics {
   cellSize: number
@@ -18,7 +18,7 @@ interface CellMetrics {
 
 export function GameBoard() {
   const { board, selectedPieceId, pendingMoves } = useGameStore()
-  const { previewMoves, previewPushResult } = useUIStore()
+  const { previewMoves } = useUIStore()
   const { handlePieceSelect, handleMoveReservation } = useGameEngine()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -79,18 +79,21 @@ export function GameBoard() {
   }
 
   // 예약된 이동 경로 계산
-  const movePaths: Array<{ from: Position; to: Position }> = pendingMoves.map(pm => {
-    // 현재 기물 위치 찾기 (이동 전)
+  const movePaths = pendingMoves.map(pm => {
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
         const piece = board.pieces[r]?.[c]
         if (piece?.instanceId === pm.pieceId) {
-          return { from: { row: r, col: c }, to: pm.to }
+          const to = {
+            row: r + pm.direction.dr,
+            col: c + pm.direction.dc,
+          }
+          return { from: { row: r, col: c }, to }
         }
       }
     }
     return null
-  }).filter((p): p is { from: Position; to: Position } | null => p !== null)
+  }).filter((p): p is { from: Position; to: Position } => p !== null)
 
   // 셀 중심 좌표 계산
   const getCellCenter = (pos: Position): { x: number; y: number } => {
@@ -104,12 +107,11 @@ export function GameBoard() {
 
   return (
     <div className="relative" ref={containerRef}>
-      <div className={`grid ${gridCols} gap-1.5 p-3 bg-slate-900 rounded-xl`}>
+      <div className={`grid ${gridCols} gap-1.5 p-3 bg-slate-900 rounded-xl relative`}>
         {board.tiles.map((row, r) =>
           row.map((tile, c) => {
             const piece = board.pieces[r]?.[c]
             const isHighlighted = previewMoves.some(m => m.row === r && m.col === c)
-            const pushPreview = previewPushResult.get(`${r},${c}`)
             const isSelected = piece?.instanceId === selectedPieceId
             const hasPendingMove = piece ? pendingMoves.some(m => m.pieceId === piece.instanceId) : false
 
@@ -119,7 +121,6 @@ export function GameBoard() {
                   tileType={tile}
                   piece={piece ?? undefined}
                   isHighlighted={isHighlighted}
-                  pushPreview={pushPreview}
                   isSelected={isSelected}
                   hasPendingMove={hasPendingMove}
                   onClick={() => handleCellClick({ row: r, col: c })}
@@ -127,19 +128,26 @@ export function GameBoard() {
               </div>
             )
           })
-        })
+        )}
       </div>
 
-      {/* 이동 경로 SVG 오버레이 */}
       {metrics && movePaths.length > 0 && (
         <svg
           className="absolute inset-0 pointer-events-none"
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', zIndex: 5 }}
         >
           <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#60A5FA" />
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#60A5FA" fillOpacity="0.8" />
             </marker>
+            <style>{`
+              @keyframes dash-flow {
+                to { stroke-dashoffset: -24; }
+              }
+              .move-path {
+                animation: dash-flow 0.8s linear infinite;
+              }
+            `}</style>
           </defs>
 
           {movePaths.map((path, index) => {
@@ -155,10 +163,12 @@ export function GameBoard() {
                 x2={to.x}
                 y2={to.y}
                 stroke="#60A5FA"
-                strokeWidth="3"
-                strokeDasharray="8 4"
+                strokeWidth="2.5"
+                strokeOpacity="0.7"
+                strokeDasharray="6 6"
                 strokeLinecap="round"
                 markerEnd="url(#arrowhead)"
+                className="move-path"
               />
             )
           })}
